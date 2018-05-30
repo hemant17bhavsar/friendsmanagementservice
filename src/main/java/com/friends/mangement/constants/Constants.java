@@ -30,6 +30,17 @@ public final class Constants {
     public static final String TEST_SQL_SCRIPTS_FILE_PATH = "sql/scripts/";
     public static final String SCRIPT_ENCODEING = "UTF-8";
 
+    public static final String USERID = "userId";
+    public static final String EMAILIDS = "emailIds";
+    public static final String REQUEST_ID = "requestId";
+    public static final String TARGET_ID = "targetId";
+    public static final String RELATION_TYPE = "relationType";
+    public static final String BLOCK_RELATION_TYPE = "blockRelationType";
+    public static final String SUBCRIBE_RELATION_TYPE = "subcribeRelation";
+    public static final String FRIEND_RELATION_TYPE = "friendRelation";
+    public static final String NEW_RELATIONSHIP = "newRelationShip";
+    public static final String OLD_RELATIONSHIP = "oldRelationShip";
+    public static final String SPACE = " ";
 
 
 }

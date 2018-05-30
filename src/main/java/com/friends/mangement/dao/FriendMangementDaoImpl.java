@@ -29,6 +29,13 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
     private static Logger log = LogManager.getLogger();
 
+    /**
+     * Retrieving email id and validating emailIds.
+     * 
+     * @param ReqCreateFriend
+     * @return ValidateEmailId
+     * @throws CustomGenericException
+     */
     @SuppressWarnings("unchecked")
     @Override
     public ValidateEmailId validateEmailIds(ReqCreateFriend validateEmailIds)
@@ -43,7 +50,8 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
             TypedQuery<UserDetails> query =
                     (TypedQuery<UserDetails>) getEntityManager().createQuery(
                             "SELECT ud  FROM UserDetails ud WHERE ud.emailId in :emailIds");
-            query.setParameter("emailIds", validateEmailIds.getFriends());
+            query.setParameter(Constants.EMAILIDS,
+                    validateEmailIds.getFriends());
             List<UserDetails> userDetailList = query.getResultList();
 
             validateEmailId =
@@ -103,6 +111,13 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
         return validateEmailId;
     }
 
+    /**
+     * creating friend relation between two friends
+     * 
+     * @param UserRelationShip
+     * @return
+     * @throws CustomGenericException
+     */
     @Override
     public void insertRelationShipData(UserRelationShip userRelationShip)
             throws CustomGenericException {
@@ -129,6 +144,15 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
     }
 
+    /**
+     * Retrieving friend relation between lists
+     * 
+     * @param requestId,targetId,relationType,flag
+     * @return List<UserRelationShip>
+     * @throws CustomGenericException
+     */
+
+    @SuppressWarnings("unchecked")
     @Override
     public List<UserRelationShip> getExistRelationShip(int requestId,
             int targetId, String relationType, boolean flag) throws Exception {
@@ -156,10 +180,10 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
             qry.append(
                     "and (urs.relationType=:relationType  or urs.relationType=:blockRelationType )");
             Query query = getEntityManager().createQuery(qry.toString());
-            query.setParameter("requestId", requestId);
-            query.setParameter("targetId", targetId);
-            query.setParameter("relationType", relationType);
-            query.setParameter("blockRelationType", Constants.BLOCK);
+            query.setParameter(Constants.REQUEST_ID, requestId);
+            query.setParameter(Constants.TARGET_ID, targetId);
+            query.setParameter(Constants.RELATION_TYPE, relationType);
+            query.setParameter(Constants.BLOCK_RELATION_TYPE, Constants.BLOCK);
             resultList = query.getResultList();
 
             log.info(
@@ -179,6 +203,14 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
     }
 
+    /**
+     * Retrieving friend relation between lists
+     * 
+     * @param ReqRetrivedFriendList
+     * @return RespFriendList
+     * @throws CustomGenericException
+     */
+
     @Override
     public RespFriendList getFriendList(ReqRetrivedFriendList friends)
             throws CustomGenericException {
@@ -195,9 +227,10 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
             Query query = getEntityManager().createQuery(qry);
 
-            query.setParameter("userId", friends.getUserId());
+            query.setParameter(Constants.USERID, friends.getUserId());
 
 
+            @SuppressWarnings("unchecked")
             List<UserDetails> resultList = query.getResultList();
             List<String> friendList = new ArrayList<String>();
             if (null != resultList) {
@@ -229,6 +262,14 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
         return friendListResponse;
     }
 
+    /**
+     * Retrieving friend relation between lists
+     * 
+     * @param requestId,targetId
+     * @return RespFriendList
+     * @throws CustomGenericException
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public List<UserRelationShip> getUserRelationData(int requestId,
             int targetId) throws CustomGenericException {
@@ -238,17 +279,20 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
         List<UserRelationShip> userDetailList = null;
         try
         {
-            Map<String, Integer> map = new HashMap<String, Integer>();
+
             TypedQuery<UserRelationShip> query =
                     (TypedQuery<UserRelationShip>) getEntityManager().createQuery(
                                     "SELECT usr  FROM UserRelationShip usr WHERE (usr.requestId =:requestId and usr.targetId=:targetId) or (usr.requestId =:targetId and usr.targetId=:requestId)");
-            query.setParameter("requestId", requestId);
-            query.setParameter("targetId", targetId);
+            query.setParameter(Constants.REQUEST_ID, requestId);
+            query.setParameter(Constants.TARGET_ID, targetId);
             userDetailList = query.getResultList();
             log.info(
                     "friendMangementDaoImpl::getExistRelationShip::get user relationship data list for request={}, target={}",
                     requestId, targetId);
         } catch (NoResultException e) {
+            log.info(
+                    "friendMangementDaoImpl::getExistRelationShip::No result exception for request={}, target={}",
+                    requestId, targetId);
             return null;
         } catch (Exception e) {
             log.error(
@@ -262,6 +306,13 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
         return userDetailList;
     }
 
+    /**
+     * update UserRelationData
+     * 
+     * @param requestId,targetId
+     * @return
+     * @throws CustomGenericException
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void updateUserRelationData(int requestId, int targetId,
@@ -271,20 +322,23 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
                 "friendMangementDaoImpl::getExistRelationShip::updating exist relationship for request={}, target={}, relationType={}",
                 requestId, targetId, newRelationShip, oldRelationShip);
         try {
-            Map<String, Integer> map = new HashMap<String, Integer>();
+
             TypedQuery<UserRelationShip> query =
                     (TypedQuery<UserRelationShip>) getEntityManager()
                             .createQuery(
                                     "UPDATE UserRelationShip SET relationType=:newRelationShip WHERE requestId=:requestId and targetId=:targetId and relationType=:oldRelationShip");
-            query.setParameter("requestId", requestId);
-            query.setParameter("targetId", targetId);
-            query.setParameter("newRelationShip", newRelationShip);
-            query.setParameter("oldRelationShip", oldRelationShip);
+            query.setParameter(Constants.REQUEST_ID, requestId);
+            query.setParameter(Constants.TARGET_ID, targetId);
+            query.setParameter(Constants.NEW_RELATIONSHIP, newRelationShip);
+            query.setParameter(Constants.OLD_RELATIONSHIP, oldRelationShip);
             query.executeUpdate();
             log.info(
                     "friendMangementDaoImpl::getExistRelationShip::updated exist relationship for request={}, target={}, relationType={}",
                     requestId, targetId, newRelationShip, oldRelationShip);
         } catch (Exception e) {
+            log.error(
+                    "friendMangementDaoImpl::updateUserRelationData::exception Occured request={}, target={}, exception={}",
+                    requestId, targetId, e);
             throw new CustomGenericException(Constants.ERROR_CODE_500,
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -292,9 +346,21 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
     }
 
+    /**
+     * Retrieving 'from subscribed' email id list
+     * 
+     * @param userid
+     * @return RespFriendList
+     * @throws CustomGenericException
+     */
+
+    @SuppressWarnings("unchecked")
     @Override
     public RespFriendList getListEmailForNotification(int userId)
             throws CustomGenericException {
+        log.info(
+                "friendMangementDaoImpl::getListEmailForNotification::retrieving email ids getting notification to userid={}",
+                userId);
         RespFriendList friendListResponse = new RespFriendList();
         try {
             String qry = "SELECT ud FROM UserDetails ud where ud.userId in ( "
@@ -305,11 +371,16 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
 
             Query query = getEntityManager().createQuery(qry);
 
-            query.setParameter("userId", userId);
-            query.setParameter("subcribeRelation", Constants.SUBCRIBE);
-            query.setParameter("friendRelation", Constants.FRIEND);
+            query.setParameter(Constants.USERID, userId);
+            query.setParameter(Constants.SUBCRIBE_RELATION_TYPE,
+                    Constants.SUBCRIBE);
+            query.setParameter(Constants.FRIEND_RELATION_TYPE,
+                    Constants.FRIEND);
 
             List<UserDetails> resultList = query.getResultList();
+            log.info(
+                    "friendMangementDaoImpl::getListEmailForNotification::retrieved email ids getting notification to userid={}",
+                    userId);
             List<String> friendList = new ArrayList<String>();
             if (null != resultList) {
                 friendListResponse.setCount(resultList.size());
@@ -326,7 +397,11 @@ public class FriendMangementDaoImpl extends BaseDao<Object>
             }
             friendListResponse.setSuccess(Constants.TRUE);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(
+                    "friendMangementDaoImpl::getListEmailForNotification::exception Occured userid={}, exception={}",
+                    userId, e);
+            throw new CustomGenericException(Constants.ERROR_CODE_500,
+                    e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return friendListResponse;
